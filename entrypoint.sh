@@ -6,7 +6,7 @@ set -e
 # ------------------------
 RUN=$1
 WORKING_DIR=$2
-SEND_COMMNET=$3
+SEND_COMMENT=$3
 GITHUB_TOKEN=$4
 FLAGS=$5
 IGNORE_DEFER_ERR=$6
@@ -50,12 +50,14 @@ check_errcheck() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		COMMENT="## ⚠ errcheck Failed
 \`\`\`
 ${OUTPUT}
 \`\`\`
 "
+	else
+        echo $OUTPUT
 	fi
 }
 
@@ -71,7 +73,7 @@ check_fmt() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		FMT_OUTPUT=""
 		for file in ${UNFMT_FILES}; do
 			FILE_DIFF=$(gofmt -d -e "${file}" | sed -n '/@@.*/,//{/@@.*/d;p}')
@@ -88,6 +90,8 @@ ${FILE_DIFF}
 		COMMENT="## ⚠ gofmt Failed
 ${FMT_OUTPUT}
 "
+    else
+        echo $FILE_DIFF
 	fi
 }
 
@@ -103,7 +107,7 @@ check_imports() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		FMT_OUTPUT=""
 		for file in ${UNFMT_FILES}; do
 			FILE_DIFF=$(goimports -d -e "${file}" | sed -n '/@@.*/,//{/@@.*/d;p}')
@@ -120,6 +124,8 @@ ${FILE_DIFF}
 		COMMENT="## ⚠ goimports Failed
 ${FMT_OUTPUT}
 "
+	else
+        echo $FILE_DIFF
 	fi
 
 }
@@ -135,7 +141,7 @@ check_lint() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		COMMENT="## ⚠ golint Failed
 $(echo "${OUTPUT}" | awk 'END{print}')
 <details><summary>Show Detail</summary>
@@ -145,6 +151,8 @@ $(echo "${OUTPUT}" | sed -e '$d')
 \`\`\`
 </details>
 "
+	else
+        echo $OUTPUT
 	fi
 }
 
@@ -159,7 +167,7 @@ check_sec() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		COMMENT="## ⚠ gosec Failed
 \`\`\`
 $(tail -n 6 result.txt)
@@ -173,6 +181,8 @@ $(cat result.txt)
 
 </details>
 "
+    else
+        $(cat result.txt)
 	fi
 }
 
@@ -187,12 +197,14 @@ check_shadow() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		COMMENT="## ⚠ shadow Failed
 \`\`\`
 ${OUTPUT}
 \`\`\`
 "
+	else
+        echo $OUTPUT
 	fi
 }
 
@@ -207,7 +219,7 @@ check_staticcheck() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		COMMENT="## ⚠ staticcheck Failed
 \`\`\`
 ${OUTPUT}
@@ -215,6 +227,8 @@ ${OUTPUT}
 
 [Checks Document](https://staticcheck.io/docs/checks)
 "
+	else
+        echo $OUTPUT
 	fi
 }
 
@@ -229,12 +243,14 @@ check_vet() {
 		return
 	fi
 
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		COMMENT="## ⚠ vet Failed
 \`\`\`
 ${OUTPUT}
 \`\`\`
 "
+	else
+        echo $OUTPUT
 	fi
 }
 
@@ -283,7 +299,7 @@ esac
 if [ ${SUCCESS} -ne 0 ]; then
 	echo "Check Failed!!"
 	echo ${COMMENT}
-	if [ "${SEND_COMMNET}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ]; then
 		send_comment
 	fi
 fi
