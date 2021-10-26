@@ -49,7 +49,7 @@ check_errcheck() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		COMMENT="## ⚠ errcheck Failed
 \`\`\`
 ${OUTPUT}
@@ -70,7 +70,7 @@ check_fmt() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		FMT_OUTPUT=""
 		for file in ${UNFMT_FILES}; do
 			FILE_DIFF=$(gofmt -d -e "${file}" | sed -n '/@@.*/,//{/@@.*/d;p}')
@@ -102,7 +102,7 @@ check_imports() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		FMT_OUTPUT=""
 		for file in ${UNFMT_FILES}; do
 			FILE_DIFF=$(goimports -d -e "${file}" | sed -n '/@@.*/,//{/@@.*/d;p}')
@@ -134,7 +134,7 @@ check_lint() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		COMMENT="## ⚠ golint Failed
 $(echo "${OUTPUT}" | awk 'END{print}')
 <details><summary>Show Detail</summary>
@@ -158,7 +158,7 @@ check_sec() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		COMMENT="## ⚠ gosec Failed
 \`\`\`
 $(tail -n 6 result.txt)
@@ -186,7 +186,7 @@ check_shadow() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		COMMENT="## ⚠ shadow Failed
 \`\`\`
 ${OUTPUT}
@@ -206,7 +206,7 @@ check_staticcheck() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		COMMENT="## ⚠ staticcheck Failed
 \`\`\`
 ${OUTPUT}
@@ -228,7 +228,7 @@ check_vet() {
 		return
 	fi
 
-	if [ "${SEND_COMMENT}" = "true" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		COMMENT="## ⚠ vet Failed
 \`\`\`
 ${OUTPUT}
@@ -282,7 +282,7 @@ esac
 if [ ${SUCCESS} -ne 0 ]; then
 	echo "Check Failed!!"
 	echo ${COMMENT}
-	if [ "${SEND_COMMENT}" = "true" || -n "${GITHUB_HEAD_REF}" ]; then
+	if [ "${SEND_COMMENT}" = "true" ] || [! -z "$GITHUB_HEAD_REF" -a "$GITHUB_HEAD_REF" != " " ]; then
 		send_comment
 	fi
 fi
